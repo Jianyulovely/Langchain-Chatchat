@@ -1,0 +1,645 @@
+================================================================================
+                    Langchain-Chatchat 学习路线规划
+================================================================================
+
+学习路线总览:
+阶段1: 基础夯实 (2-3周) → 阶段2: 框架深入 (3-4周) → 阶段3: 核心技术 (4-5周) → 阶段4: 实战开发 (3-4周)
+
+================================================================================
+阶段1: 基础夯实 (2-3周)
+================================================================================
+
+1.1 Python 进阶 (1周)
+
+学习内容:
+- 面向对象编程
+  * 类和继承
+  * 抽象基类 (ABC)
+  * 设计模式（工厂模式、单例模式、策略模式）
+  
+  项目中的应用示例:
+  from abc import ABC, abstractmethod
+  
+  class BaseLLM(ABC):
+      @abstractmethod
+      def chat(self, messages: list) -> str:
+          pass
+
+- 异步编程
+  * async/await 语法
+  * asyncio 库
+  * 并发与并行
+  
+  项目中的应用:
+  async def create_kb(self, name: str, files: list):
+      documents = await self.doc_loader.load(files)
+      return documents
+
+- 类型注解
+  * typing 模块
+  * 泛型
+  * Pydantic 数据验证
+  
+  项目中的应用:
+  from typing import List, Optional, Dict, Any
+  
+  def query_database(query: str, config: dict) -> str:
+      pass
+
+实践任务:
+- 重构一个简单的同步函数为异步函数
+- 使用 Pydantic 创建数据模型
+
+学习资源:
+- Python 官方文档 - 异步编程: https://docs.python.org/zh-cn/3/library/asyncio.html
+- Pydantic 官方文档: https://docs.pydantic.dev/
+
+
+1.2 数据库基础 (1周)
+
+学习内容:
+- SQL 基础
+  * 基本查询（SELECT, WHERE, JOIN）
+  * 数据操作（INSERT, UPDATE, DELETE）
+  * 索引和优化
+
+- SQLAlchemy ORM
+  * 模型定义
+  * 会话管理
+  * 关系映射
+  
+  项目中的应用:
+  from sqlalchemy import Column, Integer, String
+  from sqlalchemy.ext.declarative import declarative_base
+  
+  Base = declarative_base()
+  
+  class KnowledgeBase(Base):
+      __tablename__ = "knowledge_base"
+      id = Column(Integer, primary_key=True)
+      name = Column(String(50))
+
+- 数据库事件监听
+  项目中的 text2sql.py 应用:
+  from sqlalchemy import event
+  
+  event.listen(db._engine, "before_cursor_execute", intercept_sql)
+
+实践任务:
+- 使用 SQLAlchemy 创建一个简单的 CRUD 应用
+- 实现数据库事件监听器
+
+学习资源:
+- SQLAlchemy 官方文档: https://docs.sqlalchemy.org/
+- SQLAlchemy 教程: https://docs.sqlalchemy.org/en/14/orm/quickstart.html
+
+
+================================================================================
+阶段2: 框架深入 (3-4周)
+================================================================================
+
+2.1 FastAPI 框架 (1.5周)
+
+学习内容:
+- FastAPI 基础
+  * 路由和请求处理
+  * 依赖注入
+  * 中间件
+  
+  项目中的应用:
+  from fastapi import APIRouter, Depends, Body
+  
+  router = APIRouter(prefix="/knowledge-bases", tags=["knowledge-base"])
+  
+  @router.post("/")
+  async def create_kb(
+      name: str = Body(...),
+      files: list[UploadFile] = File(...)
+  ):
+      pass
+
+- FastAPI 高级
+  * WebSocket 连接
+  * 后台任务
+  * 流式响应 (SSE)
+  
+  项目中的流式输出:
+  from sse_starlette.sse import EventSourceResponse
+  
+  async def stream_chat():
+      async for chunk in llm.stream_chat(messages):
+          yield {"data": chunk}
+
+实践任务:
+- 创建一个完整的 FastAPI CRUD API
+- 实现流式响应接口
+
+学习资源:
+- FastAPI 官方文档: https://fastapi.tiangolo.com/zh/
+- FastAPI 教程: https://fastapi.tiangolo.com/zh/tutorial/
+
+
+2.2 Langchain 框架 (1.5周)
+
+学习内容:
+- Langchain 基础
+  * LLM 调用
+  * Prompt 管理
+  * Chain 链式调用
+  
+  项目中的应用:
+  from langchain.chains import LLMChain
+  from langchain.prompts import PromptTemplate
+  
+  prompt = PromptTemplate(
+      input_variables=["query"],
+      template="Question: {query}"
+  )
+  chain = LLMChain(prompt=prompt, llm=llm)
+  result = chain.invoke({"query": "Hello"})
+
+- Langchain 组件
+  * Document Loader（文档加载）
+  * Text Splitter（文本分割）
+  * Vector Store（向量存储）
+  * Retriever（检索器）
+  
+  项目中的应用:
+  from langchain.text_splitter import RecursiveCharacterTextSplitter
+  from langchain.vectorstores import FAISS
+  
+  splitter = RecursiveCharacterTextSplitter(chunk_size=500)
+  chunks = splitter.split_documents(documents)
+  vector_store = FAISS.from_documents(chunks, embeddings)
+
+实践任务:
+- 使用 Langchain 构建一个简单的问答系统
+- 实现文档加载和向量存储
+
+学习资源:
+- Langchain 官方文档: https://python.langchain.com/docs/get_started/introduction
+- Langchain 中文文档: https://www.langchain.com.cn/docs/
+
+
+================================================================================
+阶段3: 核心技术 (4-5周)
+================================================================================
+
+3.1 RAG (检索增强生成) (2周)
+
+学习内容:
+- RAG 原理
+  * 文档处理流程
+  * 向量检索原理
+  * 上下文构建
+  
+  RAG 完整流程:
+  # 1. 加载文档
+  documents = loader.load(file_path)
+  
+  # 2. 分割文本
+  chunks = text_splitter.split_documents(documents)
+  
+  # 3. 向量化
+  embeddings = embedding_model.embed_documents([doc.page_content for doc in chunks])
+  
+  # 4. 存储到向量库
+  vector_store.add_documents(chunks)
+  
+  # 5. 检索
+  retrieved_docs = vector_store.similarity_search(query, k=4)
+  
+  # 6. 构建提示词
+  context = "\n".join([doc.page_content for doc in retrieved_docs])
+  prompt = f"Context: {context}\n\nQuestion: {query}"
+  
+  # 7. 生成回答
+  answer = llm.chat(prompt)
+
+- 向量数据库
+  * FAISS（本地向量库）
+  * ChromaDB（轻量级向量库）
+  * Milvus（分布式向量库）
+  * Elasticsearch（搜索引擎）
+  
+  项目中的应用:
+  from langchain.vectorstores import FAISS, Chroma
+  
+  # FAISS
+  faiss_store = FAISS.from_documents(chunks, embeddings)
+  
+  # ChromaDB
+  chroma_store = Chroma.from_documents(
+      chunks, 
+      embeddings,
+      collection_name="my_kb"
+  )
+
+- 文本分割策略
+  * 递归字符分割
+  * 中文文本分割
+  * 语义分割
+  
+  项目中的应用:
+  from chatchat.server.file_rag.text_splitter import ChineseTextSplitter
+  
+  splitter = ChineseTextSplitter(
+      chunk_size=500,
+      chunk_overlap=50
+  )
+
+实践任务:
+- 从零构建一个 RAG 系统
+- 对比不同向量数据库的性能
+- 优化文本分割策略
+
+学习资源:
+- RAG 原理解析: https://www.anthropic.com/index/retrieval-augmented-generation
+- 向量数据库对比: https://zilliz.com/learn/what-is-vector-database
+
+
+3.2 Agent 系统 (2周)
+
+学习内容:
+- Agent 原理
+  * ReAct 模式（推理+行动）
+  * 工具调用机制
+  * 思维链 (Chain of Thought)
+  
+  项目中的应用:
+  from langchain.agents import AgentExecutor, create_react_agent
+  
+  tools = [search_tool, calculator_tool]
+  agent = create_react_agent(llm, tools, prompt)
+  agent_executor = AgentExecutor(agent=agent, tools=tools)
+  result = agent_executor.invoke({"input": "查询今天天气"})
+
+- 工具开发
+  * 工具定义
+  * 工具注册
+  * 工具调用
+  
+  项目中的应用:
+  from langchain.agents import tool
+  from chatchat.server.pydantic_v1 import Field
+  
+  @regist_tool(title="数据库对话")
+  def text2sql(
+      query: str = Field(description="自然语言查询")
+  ):
+      """与数据库对话的工具"""
+      result = query_database(query, config)
+      return result
+
+- Agent 类型
+  * ReAct Agent
+  * Structured Chat Agent
+  * OpenAI Functions Agent
+  
+  项目中的应用:
+  from langchain.agents import create_structured_chat_agent
+  
+  agent = create_structured_chat_agent(
+      llm=llm,
+      tools=tools,
+      prompt=prompt
+  )
+
+实践任务:
+- 开发自定义 Agent 工具
+- 实现一个多步骤任务 Agent
+- 对比不同 Agent 类型的效果
+
+学习资源:
+- Langchain Agents 文档: https://python.langchain.com/docs/modules/agents/
+- ReAct 论文: https://arxiv.org/abs/2210.03629
+
+
+3.3 大语言模型 (1周)
+
+学习内容:
+- LLM 基础
+  * 模型调用方式
+  * 流式输出
+  * 温度参数控制
+  
+  项目中的应用:
+  from chatchat.server.utils import get_ChatOpenAI
+  
+  llm = get_ChatOpenAI(
+      model_name="gpt-3.5-turbo",
+      temperature=0.1,
+      streaming=True,
+      local_wrap=True,
+      verbose=True,
+  )
+
+- 模型部署框架
+  * Xinference（本地模型部署）
+  * LocalAI（OpenAI 兼容）
+  * Ollama（轻量级部署）
+  * FastChat（多模型服务）
+  
+  项目中的应用:
+  from xinference_client import Client
+  
+  client = Client("http://localhost:9997")
+  model = client.get_model("llama-2")
+  response = model.generate("Hello")
+
+- Embedding 模型
+  * 文本向量化
+  * 相似度计算
+  * 模型选择
+  
+  项目中的应用:
+  from langchain.embeddings import OpenAIEmbeddings
+  
+  embeddings = OpenAIEmbeddings(
+      model="text-embedding-ada-002"
+  )
+  vector = embeddings.embed_query("Hello World")
+
+实践任务:
+- 使用不同的 LLM 进行对比测试
+- 部署本地模型
+- 测试不同 Embedding 模型的效果
+
+学习资源:
+- OpenAI API 文档: https://platform.openai.com/docs/api-reference
+- Xinference 文档: https://inference.readthedocs.io/zh-cn/latest/
+
+
+================================================================================
+阶段4: 实战开发 (3-4周)
+================================================================================
+
+4.1 文档处理 (1周)
+
+学习内容:
+- 文档加载
+  * PDF 处理（PyMuPDF）
+  * Word 处理（python-docx）
+  * PPT 处理（python-pptx）
+  * OCR 文字识别（RapidOCR）
+  
+  项目中的应用:
+  from chatchat.server.file_rag.document_loaders import MyPDFLoader
+  
+  loader = MyPDFLoader(file_path="document.pdf")
+  documents = loader.load()
+
+- 文本处理
+  * 中文分词（jieba）
+  * 文本清洗
+  * 格式转换
+  
+  项目中的应用:
+  import jieba
+  
+  words = jieba.cut("我爱自然语言处理")
+  print(list(words))
+
+实践任务:
+- 实现一个自定义文档加载器
+- 优化 OCR 识别效果
+
+学习资源:
+- Unstructured 文档处理: https://docs.unstructured.io/
+- RapidOCR 文档: https://github.com/RapidAI/RapidOCR
+
+
+4.2 Web 开发 (1周)
+
+学习内容:
+- Streamlit
+  * 基础组件
+  * 会话管理
+  * 文件上传
+  
+  项目中的应用:
+  import streamlit as st
+  
+  st.title("知识库问答")
+  uploaded_file = st.file_uploader("上传文档")
+  if uploaded_file:
+      st.success("文件上传成功")
+
+- 前端交互
+  * 实时对话
+  * 流式输出
+  * 文件预览
+
+实践任务:
+- 创建一个 Streamlit 应用
+- 实现实时对话界面
+
+学习资源:
+- Streamlit 官方文档: https://docs.streamlit.io/
+- Streamlit 教程: https://docs.streamlit.io/library/get-started
+
+
+4.3 项目实战 (1-2周)
+
+实战项目建议:
+
+项目1: 简单的文档问答系统
+- 功能: 上传 PDF 文档，进行问答
+- 技术点: 文档加载、向量存储、RAG
+- 难度: ⭐⭐
+
+项目2: 多知识库管理系统
+- 功能: 管理多个知识库，支持搜索和问答
+- 技术点: 知识库 CRUD、向量检索、API 开发
+- 难度: ⭐⭐⭐
+
+项目3: Agent 工具开发
+- 功能: 开发自定义 Agent 工具（如天气查询、股票查询）
+- 技术点: 工具定义、Agent 集成、API 调用
+- 难度: ⭐⭐⭐
+
+项目4: Text2SQL 系统
+- 功能: 自然语言转 SQL 查询
+- 技术点: SQL 生成、数据库连接、结果展示
+- 难度: ⭐⭐⭐⭐
+
+项目5: 完整的 RAG + Agent 系统
+- 功能: 集成知识库问答和 Agent 工具
+- 技术点: 系统集成、流式输出、Web 界面
+- 难度: ⭐⭐⭐⭐⭐
+
+
+================================================================================
+推荐学习资源
+================================================================================
+
+在线课程:
+- Langchain 官方教程: https://python.langchain.com/docs/get_started/introduction
+- FastAPI 官方教程: https://fastapi.tiangolo.com/zh/tutorial/
+- 吴恩达 AI 课程: https://www.deeplearning.ai/
+
+书籍推荐:
+- 《Python 编程：从入门到实践》
+- 《流畅的 Python》
+- 《深度学习入门：基于 Python 的理论与实现》
+
+实践平台:
+- Hugging Face: https://huggingface.co/ - 模型和数据集
+- Kaggle: https://www.kaggle.com/ - 数据科学竞赛
+- GitHub: https://github.com/ - 开源项目
+
+
+================================================================================
+学习建议
+================================================================================
+
+学习方法:
+1. 理论与实践结合 - 每学一个概念就动手实践
+2. 从简单到复杂 - 先完成小项目，再挑战大项目
+3. 阅读源码 - 深入理解项目实现细节
+4. 参与社区 - 加入相关技术社区，交流学习
+
+时间分配:
+- 理论学习: 30%
+- 代码实践: 50%
+- 项目开发: 20%
+
+学习检查点:
+[ ] 能独立使用 FastAPI 创建 RESTful API
+[ ] 能使用 Langchain 构建简单的 Chain
+[ ] 能实现基础的 RAG 系统
+[ ] 能开发自定义 Agent 工具
+[ ] 能独立完成一个完整的项目
+
+
+================================================================================
+快速上手建议
+================================================================================
+
+如果你想快速开始，建议按以下顺序学习:
+
+第1周: Python 异步编程 + Pydantic
+第2周: FastAPI 基础
+第3周: Langchain 基础 + LLM 调用
+第4周: RAG 原理 + 向量数据库
+第5周: Agent 系统 + 工具开发
+第6周: 项目实战
+
+按照这个学习路线，你将能够完全掌握 Langchain-Chatchat 项目，并具备二次开发的能力！
+
+
+================================================================================
+项目文件结构参考
+================================================================================
+
+my-rag-project/                          # 项目根目录
+├── configs/                            # 配置文件目录
+│   ├── settings.py                      # 主配置管理
+│   ├── model_config.yaml                # 模型配置
+│   ├── kb_config.yaml                   # 知识库配置
+│   └── app_config.yaml                  # 应用配置
+│
+├── core/                               # 核心功能层
+│   ├── models/                          # 模型管理
+│   │   ├── base.py                      # 模型基类
+│   │   ├── llm_manager.py               # LLM 模型管理
+│   │   ├── embedding_manager.py         # Embedding 模型管理
+│   │   └── providers/                   # 不同模型提供商
+│   │
+│   ├── rag/                             # RAG 核心功能
+│   │   ├── document_loader.py           # 文档加载
+│   │   ├── text_splitter.py             # 文本分割
+│   │   ├── vector_store.py              # 向量存储
+│   │   ├── retriever.py                 # 检索器
+│   │   └── reranker.py                  # 重排序
+│   │
+│   ├── agent/                           # Agent 系统
+│   │   ├── base_agent.py                # Agent 基类
+│   │   ├── react_agent.py               # ReAct Agent
+│   │   ├── tools/                       # 工具目录
+│   │   └── prompts/                     # Agent 提示词
+│   │
+│   └── memory/                          # 记忆/对话历史
+│
+├── api/                                # API 接口层
+│   ├── main.py                          # FastAPI 主应用
+│   ├── dependencies.py                  # 依赖注入
+│   ├── middlewares/                     # 中间件
+│   └── routers/                         # 路由模块
+│       ├── chat.py                      # 对话路由
+│       ├── knowledge_base.py            # 知识库路由
+│       ├── file.py                      # 文件处理路由
+│       └── agent.py                     # Agent 路由
+│
+├── services/                           # 业务逻辑层
+│   ├── chat_service.py                  # 对话服务
+│   ├── kb_service.py                    # 知识库服务
+│   ├── file_service.py                  # 文件服务
+│   └── agent_service.py                 # Agent 服务
+│
+├── repositories/                        # 数据访问层
+│   ├── base.py                          # 仓储基类
+│   ├── kb_repository.py                 # 知识库数据访问
+│   ├── doc_repository.py                # 文档数据访问
+│   └── conversation_repository.py       # 对话数据访问
+│
+├── models/                             # 数据模型（ORM）
+│   ├── base.py
+│   ├── knowledge_base.py
+│   ├── document.py
+│   ├── conversation.py
+│   └── message.py
+│
+├── schemas/                            # Pydantic 数据模型
+│   ├── chat.py                          # 对话相关模型
+│   ├── kb.py                            # 知识库相关模型
+│   ├── file.py                          # 文件相关模型
+│   └── common.py                        # 通用模型
+│
+├── webui/                              # Web 界面（Streamlit/Gradio）
+│   ├── app.py                           # 主应用
+│   ├── pages/                           # 页面
+│   └── components/                      # 可复用组件
+│
+├── utils/                              # 工具函数
+│   ├── logger.py                        # 日志配置
+│   ├── exceptions.py                    # 自定义异常
+│   ├── file_utils.py                    # 文件工具
+│   └── text_utils.py                    # 文本工具
+│
+├── tests/                              # 测试目录
+│   ├── unit/                            # 单元测试
+│   ├── integration/                     # 集成测试
+│   └── conftest.py                      # pytest 配置
+│
+├── scripts/                            # 脚本工具
+│   ├── init_db.py                       # 初始化数据库
+│   ├── migrate.py                       # 数据迁移
+│   └── start.sh                         # 启动脚本
+│
+├── data/                               # 数据目录（gitignore）
+│   ├── knowledge_bases/                 # 知识库文件
+│   ├── uploads/                         # 上传文件
+│   └── logs/                            # 日志文件
+│
+├── docs/                               # 项目文档
+│   ├── architecture.md                  # 架构设计
+│   ├── api.md                           # API 文档
+│   └── development.md                   # 开发指南
+│
+├── docker/                             # Docker 部署
+│   ├── Dockerfile
+│   ├── docker-compose.yml
+│   └── .dockerignore
+│
+├── .env.example                         # 环境变量模板
+├── .gitignore
+├── pyproject.toml                       # 项目配置
+├── requirements.txt                     # 依赖
+├── README.md
+└── main.py                              # 项目入口
+
+
+================================================================================
+                              学习愉快！
+================================================================================

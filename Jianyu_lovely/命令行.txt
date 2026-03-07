@@ -1,0 +1,3 @@
+开启OneAPI服务：
+cd /data3/yjy/envs/chatchat/Langchain-Chatchat/oneapi
+./one-api
