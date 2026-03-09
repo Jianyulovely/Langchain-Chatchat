@@ -1,0 +1,2 @@
+1. faiss_kb_service.py 的 do_add_doc 方法缺少空文档过滤逻辑
+文档列表包含空文档 ：有2个文档的 page_content 为空或只包含空白字符

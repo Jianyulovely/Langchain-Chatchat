@@ -1,0 +1,41 @@
+用户问题
+   ↓
+API接口 (FastAPI)
+   ↓
+对话服务 / 知识库服务
+   ↓
+向量检索 (VectorStore)
+   ↓
+LangChain Chain
+   ↓
+LLM 推理
+   ↓
+返回答案
+
+Query → Retrieval → Prompt → LLM → Response
+
+### 从简单到复杂的梳理顺序：
+1. Day 1 : 理解启动流程
+   
+   - 查看 cli.py 了解命令行入口
+   - 查看 startup.py 了解启动逻辑
+   - 查看 server_app.py 了解应用创建
+2. Day 2 : 理解 API 路由
+   
+   - 查看 chat_routes.py 了解对话接口
+   - 查看 kb_routes.py 了解知识库接口
+   - 查看 agent_routes.py 了解 Agent 接口
+3. Day 3 : 理解业务逻辑
+   
+   - 查看 chat_service.py 了解对话服务
+   - 查看 kb_service.py 了解知识库服务
+4. Day 4 : 理解核心功能
+   
+   - 查看 RAG 相关代码
+   - 查看 Agent 相关代码
+   - 查看 LLM 调用代码
+5. Day 5 : 绘制完整流程图
+   
+   - 整合所有模块
+   - 绘制数据流向图
+   - 绘制调用关系图

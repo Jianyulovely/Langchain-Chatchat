@@ -1,0 +1,110 @@
+================================================================================
+项目文件结构参考
+================================================================================
+
+my-rag-project/                          # 项目根目录
+├── configs/                            # 配置文件目录
+│   ├── settings.py                      # 主配置管理
+│   ├── model_config.yaml                # 模型配置
+│   ├── kb_config.yaml                   # 知识库配置
+│   └── app_config.yaml                  # 应用配置
+│
+├── core/                               # 核心功能层
+│   ├── models/                          # 模型管理
+│   │   ├── base.py                      # 模型基类
+│   │   ├── llm_manager.py               # LLM 模型管理
+│   │   ├── embedding_manager.py         # Embedding 模型管理
+│   │   └── providers/                   # 不同模型提供商
+│   │
+│   ├── rag/                             # RAG 核心功能
+│   │   ├── document_loader.py           # 文档加载
+│   │   ├── text_splitter.py             # 文本分割
+│   │   ├── vector_store.py              # 向量存储
+│   │   ├── retriever.py                 # 检索器
+│   │   └── reranker.py                  # 重排序
+│   │
+│   ├── agent/                           # Agent 系统
+│   │   ├── base_agent.py                # Agent 基类
+│   │   ├── react_agent.py               # ReAct Agent
+│   │   ├── tools/                       # 工具目录
+│   │   └── prompts/                     # Agent 提示词
+│   │
+│   └── memory/                          # 记忆/对话历史
+│
+├── api/                                # API 接口层
+│   ├── main.py                          # FastAPI 主应用
+│   ├── dependencies.py                  # 依赖注入
+│   ├── middlewares/                     # 中间件
+│   └── routers/                         # 路由模块
+│       ├── chat.py                      # 对话路由
+│       ├── knowledge_base.py            # 知识库路由
+│       ├── file.py                      # 文件处理路由
+│       └── agent.py                     # Agent 路由
+│
+├── services/                           # 业务逻辑层
+│   ├── chat_service.py                  # 对话服务
+│   ├── kb_service.py                    # 知识库服务
+│   ├── file_service.py                  # 文件服务
+│   └── agent_service.py                 # Agent 服务
+│
+├── repositories/                        # 数据访问层
+│   ├── base.py                          # 仓储基类
+│   ├── kb_repository.py                 # 知识库数据访问
+│   ├── doc_repository.py                # 文档数据访问
+│   └── conversation_repository.py       # 对话数据访问
+│
+├── models/                             # 数据模型（ORM）
+│   ├── base.py
+│   ├── knowledge_base.py
+│   ├── document.py
+│   ├── conversation.py
+│   └── message.py
+│
+├── schemas/                            # Pydantic 数据模型
+│   ├── chat.py                          # 对话相关模型
+│   ├── kb.py                            # 知识库相关模型
+│   ├── file.py                          # 文件相关模型
+│   └── common.py                        # 通用模型
+│
+├── webui/                              # Web 界面（Streamlit/Gradio）
+│   ├── app.py                           # 主应用
+│   ├── pages/                           # 页面
+│   └── components/                      # 可复用组件
+│
+├── utils/                              # 工具函数
+│   ├── logger.py                        # 日志配置
+│   ├── exceptions.py                    # 自定义异常
+│   ├── file_utils.py                    # 文件工具
+│   └── text_utils.py                    # 文本工具
+│
+├── tests/                              # 测试目录
+│   ├── unit/                            # 单元测试
+│   ├── integration/                     # 集成测试
+│   └── conftest.py                      # pytest 配置
+│
+├── scripts/                            # 脚本工具
+│   ├── init_db.py                       # 初始化数据库
+│   ├── migrate.py                       # 数据迁移
+│   └── start.sh                         # 启动脚本
+│
+├── data/                               # 数据目录（gitignore）
+│   ├── knowledge_bases/                 # 知识库文件
+│   ├── uploads/                         # 上传文件
+│   └── logs/                            # 日志文件
+│
+├── docs/                               # 项目文档
+│   ├── architecture.md                  # 架构设计
+│   ├── api.md                           # API 文档
+│   └── development.md                   # 开发指南
+│
+├── docker/                             # Docker 部署
+│   ├── Dockerfile
+│   ├── docker-compose.yml
+│   └── .dockerignore
+│
+├── .env.example                         # 环境变量模板
+├── .gitignore
+├── pyproject.toml                       # 项目配置
+├── requirements.txt                     # 依赖
+├── README.md
+└── main.py                              # 项目入口

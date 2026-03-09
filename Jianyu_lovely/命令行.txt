@@ -1,3 +1,7 @@
 开启OneAPI服务：
 cd /data3/yjy/envs/chatchat/Langchain-Chatchat/oneapi
 ./one-api
+
+开启功能，现在网页左边栏工具设置部分"启用Agent"：
+cd libs/chatchat-server
+python chatchat/cli.py start -a

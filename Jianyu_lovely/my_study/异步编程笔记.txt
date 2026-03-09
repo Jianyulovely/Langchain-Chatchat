@@ -16,3 +16,14 @@
 7. 当代码进行到await时，也就是有一个任务使得事件循环需要调度其他任务，开始进行t2
 
 8. 常规写法： asyncio.run(主线程)，然后在主线程中 res = await asyncio.gather(task1(), task2())
+
+9. 用async定义的函数是一个协程，放到事件循环中的是一个协程对象<class 'coroutine'>，它是一个未开始执行的任务。
+
+10. 协程能够支持任务的暂停和恢复
+
+11. await后面接的可以是tast, coroutine(协程)或者future。
+
+12. 如果await后面是task或者协程，事件循环不会直接切换其他任务执行(区别于解决场景1中的await t1，这里t1是一个注册的“任务”类型)
+
+13. 如果await后面是future，事件循环会进行任务切换。asyncio.sleep(3)会创建一个future对象，然后await future这时候切换任务
+注：这个对象是一个中介，用于事件循环检测是否接收到数据，
