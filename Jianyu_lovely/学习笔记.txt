@@ -1,0 +1,41 @@
+3.9
+  1. 浏览目录结构 — libs/chatchat-server/chatchat/ 下各文件夹是干什么的
+
+答：1) data/里面有知识库文件。我看里面有一些md文件，还有测试文件：pdf和表格和txt。这个文件夹应该是用于测试的。
+2) nltk_data里面我猜是应该用于tokenizer的文件，都是pkl，用于不同语种的分词器？
+3) webui_pages/ 我跑通代码打开了网页，发现dialogue.py好像就是和智能体的对话页面。能够创建会话删除会话，调整模型型号和温度。
+该文件夹下的utils用来处理视频音频照片的函数，转为base64
+4)webui_pages/knowledge_base/ 是网页知识库管理的功能，能够新建知识库添加文档什么的
+webui_pages/这个文件夹中的内容就是整个项目在网页上可视化的代码
+一共有使用streamlit进行网页设计的代码，一共有4个页面：多功能对话+RAG对话（这两个选项在一个py中），知识库管理，MCP管理，多功能对话当中的
+模型配置选项
+5)img两张图片，放在网页中的logo
+6)这么来看webui_pages/是前端，server应该是应用的后端代码。
+agent/定义不同功能智能体
+agents_registry/用来使用llm注册成智能体
+api_server/ 定义不同功能的路由，与前端数据进行传递
+chat/ 根据不同的对话功能定义了不同的智能体
+constant/ 定义错误信息
+db/models/ 定义不同的基础模型，结构化内部消息
+db/repository/ 这个我不知道做什么的
+db.base\db.session 我也不知道
+file_rag/ 文档加载、检索、语句分割
+knowledge_base/ 用户上传的文档保存到这里，但里面的具体构成我不知道
+reranker/ 检索重排
+
+  2. 读 README里的架构图和流程描述
+答：我理解了RAG流程描述，核心步骤就是：1. 嵌入 2. 相似度计算 3. 检索到的内容作为提示词一部分交给llm处理
+文档处理的流程图倒是让我认识到了提示词构成这部分，向量检索的结果的段落的本身和上一部分和下一部分内容都作为提示词的“knowledge”部分输入
+提示词，然后用户输入"question"作为问题，这样llm就获得了知识库中的知识从而能够回答。
+  3. 读 startup.py — 它启动了哪些服务
+答：从函数名称上来看，这里有一个start_main_server（应该是用来开启主进程），它启动了api_server, webui因为我看到 if args.api:，    if args.webui:
+在这里面把它们加入了process进程
+
+  4. 扫一眼 settings.py — 定义了哪几类配置
+
+今天的思考题
+
+  读完之后，试着回答这两个问题（不用写很完整，能说清楚思路就行）：
+
+  1. 这个项目的前端（WebUI）和后端（API Server）是怎么通信的？是直接调用函数，还是通过网络请求？
+  2. settings.py 里的模型配置，最终是在哪里被用到的？（不用找到具体代码，猜一个合理的路径）
