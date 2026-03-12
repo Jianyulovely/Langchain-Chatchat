@@ -1,41 +1,220 @@
-3.9
-  1. 浏览目录结构 — libs/chatchat-server/chatchat/ 下各文件夹是干什么的
+==================================================
+  Langchain-Chatchat 学习笔记
+  目标岗位：大模型应用开发实习
+==================================================
 
-答：1) data/里面有知识库文件。我看里面有一些md文件，还有测试文件：pdf和表格和txt。这个文件夹应该是用于测试的。
-2) nltk_data里面我猜是应该用于tokenizer的文件，都是pkl，用于不同语种的分词器？
-3) webui_pages/ 我跑通代码打开了网页，发现dialogue.py好像就是和智能体的对话页面。能够创建会话删除会话，调整模型型号和温度。
-该文件夹下的utils用来处理视频音频照片的函数，转为base64
-4)webui_pages/knowledge_base/ 是网页知识库管理的功能，能够新建知识库添加文档什么的
-webui_pages/这个文件夹中的内容就是整个项目在网页上可视化的代码
-一共有使用streamlit进行网页设计的代码，一共有4个页面：多功能对话+RAG对话（这两个选项在一个py中），知识库管理，MCP管理，多功能对话当中的
-模型配置选项
-5)img两张图片，放在网页中的logo
-6)这么来看webui_pages/是前端，server应该是应用的后端代码。
-agent/定义不同功能智能体
-agents_registry/用来使用llm注册成智能体
-api_server/ 定义不同功能的路由，与前端数据进行传递
-chat/ 根据不同的对话功能定义了不同的智能体
-constant/ 定义错误信息
-db/models/ 定义不同的基础模型，结构化内部消息
-db/repository/ 这个我不知道做什么的
-db.base\db.session 我也不知道
-file_rag/ 文档加载、检索、语句分割
-knowledge_base/ 用户上传的文档保存到这里，但里面的具体构成我不知道
-reranker/ 检索重排
 
-  2. 读 README里的架构图和流程描述
-答：我理解了RAG流程描述，核心步骤就是：1. 嵌入 2. 相似度计算 3. 检索到的内容作为提示词一部分交给llm处理
-文档处理的流程图倒是让我认识到了提示词构成这部分，向量检索的结果的段落的本身和上一部分和下一部分内容都作为提示词的“knowledge”部分输入
-提示词，然后用户输入"question"作为问题，这样llm就获得了知识库中的知识从而能够回答。
-  3. 读 startup.py — 它启动了哪些服务
-答：从函数名称上来看，这里有一个start_main_server（应该是用来开启主进程），它启动了api_server, webui因为我看到 if args.api:，    if args.webui:
-在这里面把它们加入了process进程
+══════════════════════════════════════════════════
+  2026-03-09
+══════════════════════════════════════════════════
 
-  4. 扫一眼 settings.py — 定义了哪几类配置
+【任务】浏览目录结构
+  读 libs/chatchat-server/chatchat/ 下各文件夹，搞清楚每个文件夹是干什么的。
 
-今天的思考题
+【我的记录】
 
-  读完之后，试着回答这两个问题（不用写很完整，能说清楚思路就行）：
+前端部分 webui_pages/：
+  - dialogue.py：智能体对话页面，可创建/删除会话，调整模型和温度
+  - utils：处理视频音频照片的工具函数，转为 base64
+  - knowledge_base/：知识库管理页面，新建知识库、添加文档
+  - img/：两张 logo 图片
+  - 总共 4 个页面：多功能对话+RAG对话（同一个py）/ 知识库管理 / MCP管理 / 模型配置
 
-  1. 这个项目的前端（WebUI）和后端（API Server）是怎么通信的？是直接调用函数，还是通过网络请求？
-  2. settings.py 里的模型配置，最终是在哪里被用到的？（不用找到具体代码，猜一个合理的路径）
+后端部分 server/：
+  - agent/：定义不同功能智能体
+  - agents_registry/：用 LLM 注册成智能体
+  - api_server/：定义不同功能的路由，与前端数据交互
+  - chat/：根据不同对话功能定义不同智能体
+  - constant/：定义错误信息
+  - db/models/：定义不同基础模型，结构化内部消息
+  - db/repository/：不知道做什么的
+  - db.base / db.session：不知道
+  - file_rag/：文档加载、检索、语句分割
+  - knowledge_base/：用户上传的文档保存到这里，具体构成不清楚
+  - reranker/：检索重排
+
+其他：
+  - data/：有 md、pdf、表格、txt 测试文件，应该是测试用的知识库
+  - nltk_data/：猜测是分词器文件（pkl），用于不同语种分词
+
+
+══════════════════════════════════════════════════
+  2026-03-10
+══════════════════════════════════════════════════
+
+【任务1】读 README 里的架构图和流程描述
+  搞清楚 RAG 的整体流程是什么。
+
+【我的记录】
+
+RAG 核心步骤：
+  1. 嵌入（Embedding）
+  2. 相似度计算
+  3. 检索到的内容作为提示词的一部分交给 LLM 处理
+
+Prompt 构成（从流程图看到的）：
+  - knowledge 部分：向量检索结果的段落本身 + 上一段 + 下一段
+  - question 部分：用户输入
+  LLM 通过 knowledge + question 获得知识库中的知识，从而能够回答。
+
+----------------------------------------------------
+
+【任务2】读 startup.py — 它启动了哪些服务
+
+【我的记录】
+
+  start_main_server 函数开启主进程，通过 if args.api: 和 if args.webui:
+  将 api_server 和 webui 分别加入 process 进程，分开启动。
+
+
+══════════════════════════════════════════════════
+  2026-03-12
+══════════════════════════════════════════════════
+
+【任务】扫一眼 settings.py — 定义了哪几类配置
+
+【我的记录】
+
+BasicSettings：
+  定义根目录、用户数据目录等应用本身会用到的路径，以及 URL 网络地址。
+  make_dirs 函数可创建数据目录文件夹。
+
+KBSettings：
+  定义知识库相关配置：知识库名称、向量库种类、缓存向量库数量（只支持 FAISS）、
+  文本分割参数、标题增强、OCR 配置。
+  补充：
+    - 标题增强：分块后判断是否为标题，检索时可先筛选标题再找后续文本
+    - OCR（光学字符识别）：PDF 处理必须用 OCR，项目中只对宽高超过页面
+      一定比例的图片进行 OCR，避免小图片干扰，提高处理速度
+
+PlatformConfig：
+  本地模型加载平台（xinference）的配置：平台名称、类型、api_base_url、key，
+  以及平台支持的 llm/vllm/embedding 等模型类型。
+
+ApiModelSettings：
+  调用 API 的 LLM 配置：默认 LLM 名称、embedding 模型、历史对话轮数、
+  单次 query 最大 token 长度、模型温度。
+  LLM_MODEL_CONFIG 中对不同用途的 LLM 分别配置：
+    - preprocess_model：意图识别（根据注释）
+    - action_model：猜测用于任务规划/工具调用（疑问：为什么单独拎出来一个 LLM？
+      而不是像 LangGraph 那样让 LLM 捆绑工具？）
+    - postprocess_model：猜测用于优化答案，类似总结后输出给用户
+    - image_model：视觉 LLM，用于图片内容分析
+  不同用途的 LLM 主要在 temperature 上有区别（0.05 / 0.9 / 0.01）。
+
+ToolSettings：
+  Agent 工具配置：
+    - search_local_knowledgebase：知识库搜索参数（topk、提示词模板，
+      其中有 with/without_result 配置，提示用户回答是否基于文档知识）
+    - search_internet：搜索引擎工具配置，提供 4 种引擎
+    - 还有很多待开发功能：arxiv / weather_check / search_youtube / wolfram / calculate
+    - text2sql：将自然语言转换为 SQL 查询语句（没有 prompt 模板？直接让模型输出 SQL？）
+    - text2promql：类似 text2sql
+
+PromptSettings：
+  各 LLM/智能体的提示词模板：
+    - preprocess_model：只输出 0/1，判断问题是否需要联网/计算
+    - llm_model：AI 人设设置 + 历史聊天记录
+    - rag：RAG 通用模板（知识库问答、文件对话、搜索引擎对话）
+    - action_model：有 4 种模板（default / openai-functions / glm3 / qwen），
+      内容差别很大（疑问：为什么 qwen 用 ReAct 格式，glm3 只给工具列表，
+      openai 连工具说明都没有？难道 openai 能自己识别工具？）
+    - platform-agent / platform-knowledge-mode：不清楚是给哪个 LLM 用的
+    - postprocess_model：没有 prompt
+
+SettingsContainer：
+  把所有配置打包，方便其他脚本统一使用。
+  关键机制：
+    - settings_property：懒加载，接收 settings 对象后缓存
+    - _lazy_load_key：监控配置文件最后修改时间，文件变更时缓存失效自动重载
+    - auto_reload 标志控制是否启用自动刷新
+    - create_all_templates：创建所有组件路径
+    - set_auto_reload：对每种设置控制自动重载
+
+----------------------------------------------------
+
+【思考题1】前端（WebUI）和后端（API Server）是怎么通信的？
+
+【我的答案】
+
+  通过 HTTP 网络请求通信，不是直接调用函数。
+
+  追溯链路：
+    cli.py (init) → startup.py (start_main_server) → run_webui → webui.py
+    webui.py 是 streamlit 主页，调用各页面脚本展示页面。
+    前端发请求的地方：各页面功能函数使用 webui_pages/utils.py 的 ApiRequest 类，
+    里面对不同功能写了不同格式的 POST 请求，实现前后端数据交互。
+
+  后端那侧：
+    server/api_server/server_app.py 的 create_app 函数封装后端，
+    用 uvicorn 启动 HTTP 服务器，监听 host:port，准备接收前端请求。
+    各功能路由通过 app.include_router 挂载进来。
+
+【导师点评】完全正确。ApiRequest → HTTP POST → FastAPI uvicorn 这条链路抓得很准。
+  补充：前后端分进程部署，因此只能通过网络通信，这也是为什么可以将前后端
+  部署在不同机器上，是生产级应用的标准做法。
+
+----------------------------------------------------
+
+【思考题2】settings.py 里的模型配置，最终在哪里被用到？
+
+【我的答案】
+
+  应用启动初始化时候用到的。cli.py 的 init 中调用了 settings 这个脚本，
+  证明用在初始化。
+
+【导师点评】方向对，但还不够完整。
+  - cli.py 的 init 那步是"初始化配置文件目录"，确保文件存在
+  - Settings 是全局单例，整个项目任何地方都能 import 后随时取用：
+      from chatchat.settings import Settings
+  - 配置在需要时才实例化（懒加载），不是启动时全部加载完后就不用了
+  - 实际使用例：kb_chat.py 取 top_k、向量库类型；agent 工具取 action_model 配置
+  - 理解方式：Settings 像一个"全局配置字典"，随取随用，不只是启动时用一次
+
+----------------------------------------------------
+
+【导师解答：自己提出的两个疑问】
+
+疑问1：为什么 action_model 单独配一个 LLM，而不是像 LangGraph 那样让 LLM 捆绑工具？
+
+  这是"多 LLM 流水线"设计：
+    preprocess → action → postprocess 每个阶段分工不同、对模型能力要求不同。
+    意图识别（preprocess）用便宜快速的模型就够；
+    工具调用（action）需要支持 function calling 的模型；
+    答案优化（postprocess）偏写作风格的能力。
+  好处：成本可控，每个岗位选最合适的模型。
+  坏处：系统复杂度高。
+  LangGraph 的方式更简洁但灵活性低。两种设计各有权衡，没有绝对优劣。
+
+疑问2：为什么 qwen/glm3/openai 的 action_model prompt 模板差别那么大？
+
+  因为每个模型被训练时学的"工具调用格式"不一样：
+    - OpenAI：通过 function calling API 传工具描述，模型见过大量这种格式，
+      不需要在 prompt 里解释工具（模型自己懂）
+    - GLM3（清华）：学会了自己的 <|system|><|user|> 格式和工具调用约定
+    - Qwen（阿里）：学会了 ReAct 格式（Thought → Action → Observation 循环）
+  可以理解为：每个模型说不同"方言"，prompt 模板就是翻译层。
+  这也是为什么 prompt 工程是大模型应用开发的核心能力。
+
+
+══════════════════════════════════════════════════
+  待完成 — RAG 核心流程（下一个任务）
+══════════════════════════════════════════════════
+
+【任务】跟着代码走一遍完整的知识库问答流程
+
+按顺序读以下三个文件：
+  1. server/knowledge_base/kb_service/base.py   ← 知识库是什么结构？
+  2. server/file_rag/utils.py                   ← 文档怎么被切割和向量化？
+  3. server/chat/kb_chat.py                     ← 用户提问时，完整的处理流程是？
+
+读完后回答这一个问题（面试必考）：
+
+  用户上传一个 PDF 文档，到最后 LLM 能用它回答问题，中间经过了哪些步骤？
+  每一步的输入和输出是什么？
+
+要求：能列出每个步骤对应的函数/文件，不需要写很完整，能说清楚流程和数据流就行。
+
+【我的记录】
+
+

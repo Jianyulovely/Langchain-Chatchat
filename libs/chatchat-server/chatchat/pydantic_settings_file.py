@@ -226,6 +226,7 @@ class BaseFileSettings(BaseSettings):
             return data
 
 
+# 检查配置文件修改时间
 def _lazy_load_key(settings: BaseSettings):
     keys = [settings.__class__]
     for n in ["env_file", "json_file", "yaml_file", "toml_file"]:

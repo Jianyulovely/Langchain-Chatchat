@@ -30,11 +30,25 @@
      - 识别出 file_rag/（文档处理）、reranker/（检索重排）、api_server/（路由）的职责
      - 理解了 db/models/ 定义表结构、db/repository/ 负责增删改查
      - 自己把项目跑起来了，通过网页直观理解了各页面功能
-     待完成：
-     - README 架构图和流程描述（第二步）
-     - startup.py 启动了哪些服务（第三步）
-     - settings.py 配置类结构（第四步）
-     - 两个思考题（前后端通信方式、模型配置的使用路径）
+
+     【进度记录 2026-03-10】已完成：README 架构图 + startup.py（第二、三步）
+     掌握情况：
+     - 理解 RAG 核心流程：嵌入 → 相似度检索 → 拼接 Prompt → LLM 回答
+     - 理解 Prompt 中 knowledge（检索段落+上下文）和 question（用户输入）的组成
+     - startup.py 通过进程管理启动 api_server 和 webui 两个服务
+
+     【进度记录 2026-03-12】已完成：settings.py 配置类 + 两道思考题（第四步 + 思考题）
+     掌握情况：
+     - 完整读完 6 大配置类：BasicSettings / KBSettings / PlatformConfig /
+       ApiModelSettings / ToolSettings / PromptSettings / SettingsContainer
+     - 理解了 SettingsContainer 的懒加载机制（settings_property + _lazy_load_key）
+     - 理解了 LLM_MODEL_CONFIG 中多 LLM 分工（preprocess/action/postprocess）的设计逻辑
+     - 理解了不同模型（openai/qwen/glm3）prompt 模板差异的本质：各模型训练时的工具调用"方言"不同
+     - 思考题1：前后端通过 HTTP 网络请求通信，桥梁是 webui_pages/utils.py 的 ApiRequest 类 ✓
+     - 思考题2：Settings 是全局单例，整个项目按需 import 取用，懒加载不是只在初始化用一次 ✓
+
+     ★ 第一阶段「项目架构」部分已完成
+     → 下一步：进入 RAG 核心流程代码阅读（第一阶段第2项）
 
   2. RAG 核心流程（最重要）
      跟着代码走一遍完整的知识库问答流程：
